@@ -61,15 +61,20 @@ nav a {
     display: block;
 }
 
-/* Adjust content below the fixed header */
-body {
-    margin-top: 60px; /* Adjust this value based on your header height */
+/* Add some styles for better visualization (optional) */
+rect {
+    fill: steelblue;
 }
 
-div.bar {
-    display: inline-block;
-    width: 20px;
-    height: 75px; /* We'll override height later */
-    background-color: teal;
-    margin-right: 2px;
+body {
+    margin-top: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#bar-chart {
+    text-align: center;
 }
