@@ -1,9 +1,9 @@
 // constants
-const features = ["Age", "Edlevel"];
-const numerical = [];
-const categorical = []
+const features = ["Age","EdLevel","Employment","Gender","MainBranch","YearsCode","YearsCodePro","Country","PreviousSalary","ComputerSkills"];
+const numerical = ["YearsCode","YearsCodePro", "PreviousSalary","ComputerSkills"];
+const categorical = ["Age","EdLevel","Employment","Gender","MainBranch","Country"]
 
-const csv_link = "";
+const csv_link = "./job_data_cleaned.csv";
 
 function load_dropdown() {
     dropdown = document.getElementById("dropdown-content");
@@ -12,6 +12,7 @@ function load_dropdown() {
         a.href = "#";
         a.classList.add("dropdown-item");
         a.innerHTML = feat;
+        a.addEventListener("click", () => load(feat));
         dropdown.appendChild(a);
     })
 }
@@ -21,11 +22,17 @@ function load(feat) {
     if (numerical.indexOf(feat) !== -1) {
         d3.csv(csv_link).then(data => {
 
+            console.log(data);
+
         }).catch(err => console.log(err));
     } else if (categorical.indexOf(feat) !== -1) {
         d3.csv(csv_link).then(data => {
 
-            data.forEach()
+            // parse data into list of {label, value (frequency)}
+            let freqs = get_frequencies(data, feat);
+            Object.keys(freqs).forEach(key => new_data.push({label: key, value: freqs[key]}));
+            load_barchart(new_data);
+            
 
         }).catch(err => console.log(err));
     } else {
@@ -71,6 +78,20 @@ function load_barchart(data) {
     // Add y-axis
     svg.append("g")
         .call(d3.axisLeft(yScale));
+}
+
+/**
+ * Given the array data, returns a dictionary of frequencies in the form of {label: value}
+ */
+function get_frequencies(data, feat_name) {
+    let freqs = {};
+    data.forEach(entry => {
+        if (freqs[entry[feat_name]])
+            freqs[entry[feat_name]]++;
+        else
+            freqs[entry[feat_name]] = 1;
+    })
+    return freqs;
 }
 
 window.addEventListener("load", () => {
