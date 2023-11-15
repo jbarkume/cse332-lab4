@@ -1,0 +1,75 @@
+ /* Style for the fixed header */
+ header {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+/* Style for the navigation links in the header */
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    margin: 0 10px;
+}
+
+/* Style for the dropdown container */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Style for the dropdown button */
+.dropdown-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Style for the dropdown content */
+#dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Style for each dropdown item */
+.dropdown-item {
+    padding: 12px 16px;
+    display: block;
+    text-decoration: none;
+    color: black;
+}
+
+/* Change color on hover for dropdown items */
+.dropdown-item:hover {
+    background-color: #ddd;
+}
+
+/* Show the dropdown content when the dropdown button is clicked */
+.dropdown:hover #dropdown-content {
+    display: block;
+}
+
+/* Adjust content below the fixed header */
+body {
+    margin-top: 60px; /* Adjust this value based on your header height */
+}
+
+div.bar {
+    display: inline-block;
+    width: 20px;
+    height: 75px; /* We'll override height later */
+    background-color: teal;
+    margin-right: 2px;
+}
