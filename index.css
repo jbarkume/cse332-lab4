@@ -61,11 +61,6 @@ nav a {
     display: block;
 }
 
-/* Add some styles for better visualization (optional) */
-rect {
-    fill: steelblue;
-}
-
 body {
     margin-top: 60px;
     display: flex;
@@ -75,6 +70,6 @@ body {
     margin: 0;
 }
 
-#bar-chart {
-    text-align: center;
+svg {
+    overflow: visible;
 }
