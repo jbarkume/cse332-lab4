@@ -72,4 +72,11 @@ body {
 
 svg {
     overflow: visible;
+    display: block;
+    position: relative;
+    margin: 40px;
+}
+
+#biplot {
+    overflow: auto;
 }
