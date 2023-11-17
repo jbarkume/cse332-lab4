@@ -63,20 +63,31 @@ nav a {
 
 body {
     margin-top: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     height: 100vh;
     margin: 0;
+    background-color: rgb(184, 190, 127);
 }
 
 svg {
     overflow: visible;
-    display: block;
     position: relative;
     margin: 40px;
 }
 
-#biplot {
+#biplot, #mds-plot {
     overflow: auto;
 }
+
+/* Style for the first SVG (on a new line) */
+.svg-container-first {
+    display: block;
+    margin-bottom: 10px; /* Add some spacing between the first and second lines */
+    text-align: center;
+    margin-top: 75px;
+  }
+
+  /* Style for the next three SVGs (on a single line) */
+  .svg-container {
+    display: inline-block;
+    margin-right: 10px; /* Add some spacing between the three SVGs */
+  }

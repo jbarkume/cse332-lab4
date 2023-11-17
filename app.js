@@ -10,16 +10,16 @@ const x_label_map = {
     "ComputerSkills": "Number of Skills"
 };
 
-const pca_link = "./job_data_with_pca.csv";
+const pca_link = "./job_data_with_pca_mds.csv";
 
 const csv_link = "./job_data_cleaned.csv";
 
-const components = [[ 0.76894418,  0.00749362],
-                    [ 0.63907601,  0.01581817],
-                    [ 0.00737753,  0.00129409],
-                    [-0.01588319,  0.99984597]];
+const components = [[ 7.77129632e-01, -1.92964405e-02],
+                    [ 6.28933610e-01, -1.00455287e-02],
+                    [ 7.59509098e-03,  3.99568697e-04],
+                    [ 2.13158178e-02,  9.99763260e-01]];
 
-const currentFeat = "Age";
+let currentFeat = "Age";
 
 function handleClick (event, d) {
     // Toggle color on click
@@ -33,8 +33,7 @@ function handleClick (event, d) {
     d3.select(this).attr("fill", newColor);
 
     // change biplot points
-    let points = d3.select("#biplot").selectAll("circle")
-    points.filter(point => console.log(point))
+    load_mds_plot(d);
 }
 
 function load_dropdown() {
@@ -79,21 +78,104 @@ function load(feat) {
     }
 }
 
+function load_mds_plot(frequency=undefined) {
+
+    function mds_plot(data, frequency) {
+        // Set up chart dimensions
+        const width = 450;
+        const height = 450;
+        const svgHeight = height - 75;
+        const svgWidth = width - 75;
+
+        // Create SVG container
+        const svg = d3.select("#mds-plot")
+            .attr("width", svgHeight)
+            .attr("height", svgWidth);
+
+        // Create scales for mapping data to visual representation
+        const xScale = d3.scaleLinear()
+            .domain([d3.min(data, d => Number(d["MDS1"])), d3.max(data, d => Number(d["MDS1"]))])
+            .range([0, svgWidth]);
+
+        const yScale = d3.scaleLinear()
+            .domain([d3.min(data, d => Number(d["MDS2"])), d3.max(data, d => Number(d["MDS2"]))])
+            .range([svgHeight, 0]);
+
+        function get_color(d) {
+            console.log(frequency)
+            if (frequency) {
+                console.log(d[currentFeat]);
+                console.log(frequency.label);
+                if (frequency.label === d[currentFeat])
+                    return "red"
+            }
+            return "steelblue";
+        }
+
+        // Draw data points
+        svg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(Number(d["MDS1"])))
+            .attr("cy", d => yScale(Number(d["MDS2"])))
+            .attr("r", 2)
+            .attr("fill", d => get_color(d));
+
+        // Create x-axis
+        svg.append("g")
+            .attr("transform", `translate(0,${svgHeight})`)
+            .call(d3.axisBottom(xScale));
+
+        // Create y-axis
+        svg.append("g")
+            .attr("transform", `translate(0, 0)`)
+            .call(d3.axisLeft(yScale));
+
+        // Append a 'text' element for the title
+        svg.append("text")
+            .attr("x", (svgWidth / 2))
+            .attr("y", 30)
+            .attr("text-anchor", "middle")
+            .style("font-size", "20px") 
+            .text("MDS Plot");   
+
+        // Append a 'text' element for the x-axis label
+        svg.append("text")
+            .attr("transform", `translate(${svgWidth / 2},${svgHeight})`)  // Position below the x-axis
+            .style("text-anchor", "middle")  // Center the text horizontally
+            .text("MDS 1");           // Replace with your desired label
+
+        // Append a 'text' element for the y-axis label
+        svg.append("text")
+            .attr("transform", `rotate(-90)`) 
+            .attr("y", 0)        
+            .attr("x", 0 - (svgHeight / 2))       
+            .attr("dy", "1em")                
+            .style("text-anchor", "middle")    
+            .text("MDS 2");  
+    }
+
+    d3.csv(pca_link).then(data => {
+        mds_plot(data, frequency);
+    }).catch(err => console.log(err));
+}
+
 function load_biplot() {
 
     const pca_labels = ["YearsCode", "YearsCodePro", "PreviousSalary", "ComputerSkills"]
 
     function biplot(data) {
         // Set up chart dimensions
-        const width = 400;
-        const height = 400;
-        const svgHeight = height - 50;
-        const svgWidth = width - 50;
+        const width = 450;
+        const height = 450;
+        const svgHeight = height - 75;
+        const svgWidth = width - 75;
 
         // Create SVG container
         const svg = d3.select("#biplot")
-            .attr("width", svgWidth)
-            .attr("height", svgHeight);
+            .attr("width", svgHeight)
+            .attr("height", svgWidth);
 
         // Create scales for mapping data to visual representation
         const xScale = d3.scaleLinear()
@@ -109,10 +191,9 @@ function load_biplot() {
             .data(data)
             .enter()
             .append("circle")
-            .attr("currentFeat", currentFeat)
             .attr("cx", d => xScale(d[0]))
             .attr("cy", d => yScale(d[1]))
-            .attr("r", 3)
+            .attr("r", 2)
             .attr("fill", "steelblue");
 
         // Create x-axis
@@ -122,6 +203,7 @@ function load_biplot() {
 
         // Create y-axis
         svg.append("g")
+            .attr("transform", `translate(0, 0)`)
             .call(d3.axisLeft(yScale));
 
         // Append a 'text' element for the title
@@ -163,7 +245,7 @@ function load_biplot() {
                 .attr("x", svgWidth / 2 + components[i][0] * 150) // Adjust the scale factor as needed
                 .attr("y", svgHeight / 2 + components[i][1] * 150) // Adjust the scale factor as needed
                 .text(pca_labels[i])
-                .attr("fill", "darkblue")
+                .attr("fill", "black")
                 .attr("text-anchor", "middle")
                 .attr("alignment-baseline", "middle");
         }
@@ -185,9 +267,9 @@ function load_biplot() {
 
         let new_data = [];
         data.forEach(entry => {
-            new_data.push([entry["PC1"], entry["PC2"], entry[currentFeat]])
+            new_data.push([Number(entry["PCA1"]), Number(entry["PCA2"])]);
         })
-        biplot(new_data.slice(400, 800));
+        biplot(new_data);
 
     }).catch(err => console.log(err));
 }
@@ -249,7 +331,7 @@ function load_barchart(data, feat) {
     // Add title
     svg.append("text")
         .attr("x", (width / 2))
-        .attr("y", 0 - 50)
+        .attr("y", 0 - 25)
         .attr("text-anchor", "middle")
         .style("font-size", "20px")
         .text(feat);
@@ -340,6 +422,76 @@ function load_histogram(data, feat) {
         .text("Number of Applicants");  
 }
 
+function load_parallel_plot() {
+
+    // set the dimensions and margins of the graph
+    let margin = {top: 30, right: 10, bottom: 10, left: 0},
+    width = 500 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    let svg = d3.select("#pc-plot")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    
+    // Parse the Data
+    d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/iris.csv").then(data => {
+
+        // Extract the list of dimensions we want to keep in the plot. Here I keep all except the column called Species
+        dimensions = d3.keys(data[0]).filter(function(d) { return d != "Species" })
+
+        // For each dimension, I build a linear scale. I store all in a y object
+        let y = {}
+        for (i in dimensions) {
+            name = dimensions[i]
+            y[name] = d3.scaleLinear()
+            .domain( d3.extent(data, function(d) { return +d[name]; }) )
+            .range([height, 0])
+        }
+
+        // Build the X scale -> it find the best position for each Y axis
+        x = d3.scalePoint()
+            .range([0, width])
+            .padding(1)
+            .domain(dimensions);
+
+        // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+        function path(d) {
+            return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+        }
+
+        // Draw the lines
+        svg
+            .selectAll("myPath")
+            .data(data)
+            .enter().append("path")
+            .attr("d",  path)
+            .style("fill", "none")
+            .style("stroke", "#69b3a2")
+            .style("opacity", 0.5)
+
+        // Draw the axis:
+        svg.selectAll("myAxis")
+            // For each dimension of the dataset I add a 'g' element:
+            .data(dimensions).enter()
+            .append("g")
+            // I translate this element to its right position on the x axis
+            .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+            // And I build the axis with the call function
+            .each(function(d) { d3.select(this).call(d3.axisLeft().scale(y[d])); })
+            // Add axis title
+            .append("text")
+            .style("text-anchor", "middle")
+            .attr("y", -9)
+            .text(function(d) { return d; })
+            .style("fill", "black")
+    }).catch(err => console.log(err));
+}
+
 /**
  * Given the array data, returns a dictionary of frequencies in the form of {label: value}
  */
@@ -358,4 +510,6 @@ window.addEventListener("load", () => {
     load_dropdown();
     load(currentFeat);
     load_biplot();
+    load_mds_plot();
+    load_parallel_plot();
 })
