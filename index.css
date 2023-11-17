@@ -78,6 +78,10 @@ svg {
     overflow: auto;
 }
 
+#pc-plot {
+    margin-bottom: 300px;
+}
+
 /* Style for the first SVG (on a new line) */
 .svg-container-first {
     display: block;

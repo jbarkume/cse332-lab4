@@ -33,7 +33,8 @@ function handleClick (event, d) {
     d3.select(this).attr("fill", newColor);
 
     // change biplot points
-    load_mds_plot(d);
+    let points = d3.selectAll("circle")
+    points.filter(p => console.log(p));
 }
 
 function load_dropdown() {
@@ -78,9 +79,20 @@ function load(feat) {
     }
 }
 
-function load_mds_plot(frequency=undefined) {
+function get_color(d, frequency) {
+    console.log(frequency);
+    if (frequency) {
+        console.log(d[currentFeat]);
+        console.log(frequency.label);
+        if (frequency.label === d[currentFeat])
+            return "red"
+    }
+    return "steelblue";
+}
 
-    function mds_plot(data, frequency) {
+function load_mds_plot(feat) {
+
+    function mds_plot(data) {
         // Set up chart dimensions
         const width = 450;
         const height = 450;
@@ -101,17 +113,6 @@ function load_mds_plot(frequency=undefined) {
             .domain([d3.min(data, d => Number(d["MDS2"])), d3.max(data, d => Number(d["MDS2"]))])
             .range([svgHeight, 0]);
 
-        function get_color(d) {
-            console.log(frequency)
-            if (frequency) {
-                console.log(d[currentFeat]);
-                console.log(frequency.label);
-                if (frequency.label === d[currentFeat])
-                    return "red"
-            }
-            return "steelblue";
-        }
-
         // Draw data points
         svg.selectAll("circle")
             .data(data)
@@ -120,7 +121,7 @@ function load_mds_plot(frequency=undefined) {
             .attr("cx", d => xScale(Number(d["MDS1"])))
             .attr("cy", d => yScale(Number(d["MDS2"])))
             .attr("r", 2)
-            .attr("fill", d => get_color(d));
+            .attr("fill", d => get_color(d, frequency));
 
         // Create x-axis
         svg.append("g")
@@ -425,9 +426,9 @@ function load_histogram(data, feat) {
 function load_parallel_plot() {
 
     // set the dimensions and margins of the graph
-    let margin = {top: 30, right: 10, bottom: 10, left: 0},
+    let margin = {top: 10, right: 10, bottom: 100, left: 0},
     width = 500 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    height = 500 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     let svg = d3.select("#pc-plot")
@@ -439,10 +440,12 @@ function load_parallel_plot() {
             "translate(" + margin.left + "," + margin.top + ")");
     
     // Parse the Data
-    d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/iris.csv").then(data => {
+    d3.csv(pca_link).then(data => {
+
+        let name;
 
         // Extract the list of dimensions we want to keep in the plot. Here I keep all except the column called Species
-        dimensions = d3.keys(data[0]).filter(function(d) { return d != "Species" })
+        dimensions = Object.keys(data[0]).filter(function(d) { return numerical.includes(d) })
 
         // For each dimension, I build a linear scale. I store all in a y object
         let y = {}
